@@ -33,6 +33,41 @@ class GUMP
     // Customer filter methods
     protected static $filter_methods = array();
 
+
+    /**
+     * Support i8n
+     * @var array
+     */
+    protected static $i8n_support = array(
+        'mismatch' => 'There is no validation rule for {field}',
+        'validate_required' => 'The {field} field is required',
+        'validate_valid_email' => 'The {field} field is required to be a valid email address',
+        'validate_max_len' => 'The {field} field needs to be {params} or shorter in length',
+        'validate_min_len' => 'The {field} field needs to be {params} or longer in length',
+        'validate_exact_len' => 'The {field} field needs to be exactly {params} characters in length',
+        'validate_alpha' => 'The {field} field may only contain alpha characters(a-z)',
+        'validate_alpha_numeric' => 'The {field} field may only contain alpha-numeric characters',
+        'validate_alpha_dash' => 'The {field} field may only contain alpha characters &amp; dashes',
+        'validate_numeric' => 'The {field} field may only contain numeric characters',
+        'validate_integer' => 'The {field} field may only contain a numeric value',
+        'validate_boolean' => 'The {field} field may only contain a true or false value',
+        'validate_float' => 'The {field} field may only contain a float value',
+        'validate_valid_url' => 'The {field} field is required to be a valid URL',
+        'validate_url_exists' => 'The {field} URL does not exist',
+        'validate_valid_ip' => 'The {field} field needs to contain a valid IP address',
+        'validate_valid_cc' => 'The {field} field needs to contain a valid credit card number',
+        'validate_valid_name' => 'The {field} field needs` to contain a valid human name',
+        'validate_contains' => 'The {field} field needs to contain one of these values: {params}',
+        'validate_street_address' => 'The {field} field needs to be a valid street address',
+        'validate_date' => 'The {field} field needs to be a valid date',
+        'validate_min_numeric' => 'The {field} field needs to be a numeric value, equal to, or higher than {params}',
+        'validate_max_numeric' => 'The {field} field needs to be a numeric value, equal to, or lower than {params}',
+        'validate_min_age' => 'The {field} field needs to have an age greater than or equal to {params}',
+        'default' => 'The {field} field is invalid'
+    );
+
+    protected static $field_class = 'gump-field';
+
     // ** ------------------------- Instance Helper ---------------------------- ** //
     /**
      * Function to create and return previously created instance
@@ -47,8 +82,6 @@ class GUMP
         }
         return self::$instance;
     }
-
-
 
     // ** ------------------------- Validation Data ------------------------------- ** //
 
@@ -66,7 +99,15 @@ class GUMP
     // field characters below will be replaced with a space.
     protected $fieldCharsToRemove = array('_', '-');
 
+
     // ** ------------------------- Validation Helpers ---------------------------- ** //
+
+     /**
+     * Set i8n
+     */
+    public static function set_i8n( $i8n ) {
+        self::$i8n_support = $i8n;
+    }
 
     /**
      * Shorthand method for inline validation.
@@ -465,12 +506,15 @@ class GUMP
      * @return array
      * @return string
      */
-    public function get_readable_errors($convert_to_string = false, $field_class = 'gump-field', $error_class = 'gump-error-message')
+    public function get_readable_errors($convert_to_string = false, $field_class = '', $error_class = 'gump-error-message')
     {
         if (empty($this->errors)) {
             return ($convert_to_string) ? null : array();
         }
 
+        if( $field_class != '') {
+            $this->field_class = $field_class;
+        }
         $resp = array();
 
         foreach ($this->errors as $e) {
@@ -481,101 +525,7 @@ class GUMP
             if (array_key_exists($e['field'], self::$fields)) {
                 $field = self::$fields[$e['field']];
             }
-
-            switch ($e['rule']) {
-                case 'mismatch' :
-                    $resp[] = "There is no validation rule for <span class=\"$field_class\">$field</span>";
-                    break;
-                case 'validate_required' :
-                    $resp[] = "The <span class=\"$field_class\">$field</span> field is required";
-                    break;
-                case 'validate_valid_email':
-                    $resp[] = "The <span class=\"$field_class\">$field</span> field is required to be a valid email address";
-                    break;
-                case 'validate_max_len':
-                    $resp[] = "The <span class=\"$field_class\">$field</span> field needs to be $param or shorter in length";
-                    break;
-                case 'validate_min_len':
-                    $resp[] = "The <span class=\"$field_class\">$field</span> field needs to be $param or longer in length";
-                    break;
-                case 'validate_exact_len':
-                    $resp[] = "The <span class=\"$field_class\">$field</span> field needs to be exactly $param characters in length";
-                    break;
-                case 'validate_alpha':
-                    $resp[] = "The <span class=\"$field_class\">$field</span> field may only contain alpha characters(a-z)";
-                    break;
-                case 'validate_alpha_numeric':
-                    $resp[] = "The <span class=\"$field_class\">$field</span> field may only contain alpha-numeric characters";
-                    break;
-                case 'validate_alpha_dash':
-                    $resp[] = "The <span class=\"$field_class\">$field</span> field may only contain alpha characters &amp; dashes";
-                    break;
-                case 'validate_numeric':
-                    $resp[] = "The <span class=\"$field_class\">$field</span> field may only contain numeric characters";
-                    break;
-                case 'validate_integer':
-                    $resp[] = "The <span class=\"$field_class\">$field</span> field may only contain a numeric value";
-                    break;
-                case 'validate_boolean':
-                    $resp[] = "The <span class=\"$field_class\">$field</span> field may only contain a true or false value";
-                    break;
-                case 'validate_float':
-                    $resp[] = "The <span class=\"$field_class\">$field</span> field may only contain a float value";
-                    break;
-                case 'validate_valid_url':
-                    $resp[] = "The <span class=\"$field_class\">$field</span> field is required to be a valid URL";
-                    break;
-                case 'validate_url_exists':
-                    $resp[] = "The <span class=\"$field_class\">$field</span> URL does not exist";
-                    break;
-                case 'validate_valid_ip':
-                    $resp[] = "The <span class=\"$field_class\">$field</span> field needs to contain a valid IP address";
-                    break;
-                case 'validate_valid_cc':
-                    $resp[] = "The <span class=\"$field_class\">$field</span> field needs to contain a valid credit card number";
-                    break;
-                case 'validate_valid_name':
-                    $resp[] = "The <span class=\"$field_class\">$field</span> field needs to contain a valid human name";
-                    break;
-                case 'validate_contains':
-                    $resp[] = "The <span class=\"$field_class\">$field</span> field needs to contain one of these values: ".implode(', ', $param);
-                    break;
-                case 'validate_contains_list':
-                    $resp[] = "The <span class=\"$field_class\">$field</span> field needs contain a value from its drop down list";
-                    break;
-                case 'validate_doesnt_contain_list':
-                    $resp[] = "The <span class=\"$field_class\">$field</span> field contains a value that is not accepted";
-                    break;
-                case 'validate_street_address':
-                    $resp[] = "The <span class=\"$field_class\">$field</span> field needs to be a valid street address";
-                    break;
-                case 'validate_date':
-                    $resp[] = "The <span class=\"$field_class\">$field</span> field needs to be a valid date";
-                    break;
-                case 'validate_min_numeric':
-                    $resp[] = "The <span class=\"$field_class\">$field</span> field needs to be a numeric value, equal to, or higher than $param";
-                    break;
-                case 'validate_max_numeric':
-                    $resp[] = "The <span class=\"$field_class\">$field</span> field needs to be a numeric value, equal to, or lower than $param";
-                    break;
-                case 'validate_starts':
-                    $resp[] = "The <span class=\"$field_class\">$field</span> field needs to start with $param";
-                    break;
-                case 'validate_extension':
-                    $resp[] = "The <span class\"$field_class\">$field</span> field can have the following extensions $param";
-                    break;
-                case 'validate_required_file':
-                    $resp[] = "The <span class\"$field_class\">$field</span> field is required";
-                    break;
-                case 'validate_equalsfield':
-                    $resp[] = "The <span class=\"$field_class\">$field</span> field does not equal $param field";
-                    break;
-                case 'validate_min_age':
-                    $resp[] = "The <span class=\"$field_class\">$field</span> field needs to have an age greater than or equal to $param";
-                    break;
-                default:
-                    $resp[] = "The <span class=\"$field_class\">$field</span> field is invalid";
-            }
+            $resp[] = $this->get_rule_message( $e['rule'], $field, $param, true );
         }
 
         if (!$convert_to_string) {
@@ -614,85 +564,48 @@ class GUMP
                 $field = self::$fields[$e['field']];
             }
 
-            switch ($e['rule']) {
-                case 'mismatch' :
-                    $resp[$field] = "There is no validation rule for $field";
-                    break;
-                case 'validate_required':
-                    $resp[$field] = "The $field field is required";
-                    break;
-                case 'validate_valid_email':
-                    $resp[$field] = "The $field field is required to be a valid email address";
-                    break;
-                case 'validate_max_len':
-                    $resp[$field] = "The $field field needs to be $param or shorter in length";
-                    break;
-                case 'validate_min_len':
-                    $resp[$field] = "The $field field needs to be $param or longer in length";
-                    break;
-                case 'validate_exact_len':
-                    $resp[$field] = "The $field field needs to be exactly $param characters in length";
-                    break;
-                case 'validate_alpha':
-                    $resp[$field] = "The $field field may only contain alpha characters(a-z)";
-                    break;
-                case 'validate_alpha_numeric':
-                    $resp[$field] = "The $field field may only contain alpha-numeric characters";
-                    break;
-                case 'validate_alpha_dash':
-                    $resp[$field] = "The $field field may only contain alpha characters &amp; dashes";
-                    break;
-                case 'validate_numeric':
-                    $resp[$field] = "The $field field may only contain numeric characters";
-                    break;
-                case 'validate_integer':
-                    $resp[$field] = "The $field field may only contain a numeric value";
-                    break;
-                case 'validate_boolean':
-                    $resp[$field] = "The $field field may only contain a true or false value";
-                    break;
-                case 'validate_float':
-                    $resp[$field] = "The $field field may only contain a float value";
-                    break;
-                case 'validate_valid_url':
-                    $resp[$field] = "The $field field is required to be a valid URL";
-                    break;
-                case 'validate_url_exists':
-                    $resp[$field] = "The $field URL does not exist";
-                    break;
-                case 'validate_valid_ip':
-                    $resp[$field] = "The $field field needs to contain a valid IP address";
-                    break;
-                case 'validate_valid_cc':
-                    $resp[$field] = "The $field field needs to contain a valid credit card number";
-                    break;
-                case 'validate_valid_name':
-                    $resp[$field] = "The $field field needs to contain a valid human name";
-                    break;
-                case 'validate_contains':
-                    $resp[$field] = "The $field field needs to contain one of these values: ".implode(', ', $param);
-                    break;
-                case 'validate_street_address':
-                    $resp[$field] = "The $field field needs to be a valid street address";
-                    break;
-                case 'validate_date':
-                    $resp[$field] = "The $field field needs to be a valid date";
-                    break;
-                case 'validate_min_numeric':
-                    $resp[$field] = "The $field field needs to be a numeric value, equal to, or higher than $param";
-                    break;
-                case 'validate_max_numeric':
-                    $resp[$field] = "The $field field needs to be a numeric value, equal to, or lower than $param";
-                    break;
-                case 'validate_min_age':
-                    $resp[$field] = "The $field field needs to have an age greater than or equal to $param";
-                    break;
-                default:
-                    $resp[$field] = "The $field field is invalid";
-            }
+            $resp[$field] = $this->get_rule_message( $e['rule'], $field, $param );
         }
 
         return $resp;
+    }
+
+
+    /**
+     * Get message from rule
+     * @param string $field
+     * @param [type] $param
+     */
+    public static function get_rule_message( $rule, $field, $params, $readable = false ) {
+        switch($rule) {
+           case 'validate_contains':
+             $params  = implode(', ', $params);
+             break;
+
+            /**
+             * Another case
+             */
+            default :
+
+             break;
+        }
+
+        if( isset(self::$i8n_support[$rule]) ) {
+            $message = self::$i8n_support[$rule];
+        }else {
+            $message = self::$i8n_support['defaul'];
+        }
+
+        if ( !$readable ) {
+            return str_replace( array( '{field}', '{params}') , array( $field, $params), $message);
+        }else {
+            return str_replace(
+                array( '{field}', '{params}') ,
+                array( "<span class=\"".self::$field_class."\">$field</span>", $params),
+                $message
+            );
+
+        }
     }
 
     /**
@@ -791,58 +704,6 @@ class GUMP
         return preg_replace("/(?![.=$'€%-])\p{P}/u", '', $value);
     }
 
-    /**
-     * Translate an input string to a desired language [DEPRECIATED].
-     *
-     * Any ISO 639-1 2 character language code may be used
-     *
-     * See: http://www.science.co.il/language/Codes.asp?s=code2
-     *
-     * @param string $value
-     * @param array  $params
-     *
-     * @return string
-     */
-    /*
-    protected function filter_translate($value, $params = NULL)
-    {
-        $input_lang  = 'en';
-        $output_lang = 'en';
-
-        if(is_null($params))
-        {
-            return $value;
-        }
-
-        switch(count($params))
-        {
-            case 1:
-                $input_lang  = $params[0];
-                break;
-            case 2:
-                $input_lang  = $params[0];
-                $output_lang = $params[1];
-                break;
-        }
-
-        $text = urlencode($value);
-
-        $translation = file_get_contents(
-            "http://ajax.googleapis.com/ajax/services/language/translate?v=1.0&q={$text}&langpair={$input_lang}|{$output_lang}"
-        );
-
-        $json = json_decode($translation, true);
-
-        if($json['responseStatus'] != 200)
-        {
-            return $value;
-        }
-        else
-        {
-            return $json['responseData']['translatedText'];
-        }
-    }
-    */
 
     /**
      * Sanitize the string by removing any script tags.
